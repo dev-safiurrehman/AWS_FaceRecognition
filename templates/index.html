@@ -1,0 +1,87 @@
+<!-- <!DOCTYPE html>
+<html>
+<head>
+    <title>Attendance System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    
+    <h1>Attendance System</h1>
+    <div id="snackbar"></div>
+
+
+ 
+    <form method="POST" action="/upload" enctype="multipart/form-data">
+        <input type="file" name="imageFile">
+        <input type="submit">
+    </form>
+    
+
+    <div id="message"></div>
+
+    <h2>Attendance Records:</h2>
+    <div id="attendance-records"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/script.js"></script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Attendance System</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+</head>
+<body>
+    <header class="navbar navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">Attendance System</a>
+        </div>
+    </header>
+    
+    <main role="main" class="container mt-5">
+        <div class="alert" role="alert" id="snackbar"></div>
+
+        <form method="POST" action="/upload" enctype="multipart/form-data" class="mb-4">
+            <div class="custom-file">
+                <input type="file" class="custom-file-input" id="imageFile" name="imageFile">
+                <label class="custom-file-label" for="imageFile">Choose file</label>
+            </div>
+            <button type="submit" class="btn btn-primary mt-2">Submit</button>
+        </form>
+
+        <div id="message"></div>
+
+        <h2 class="mt-4">Attendance Records:</h2>
+        <table class="table table-striped" id="attendance-records">
+            <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Name</th>
+                    <th scope="col">Date</th>
+                </tr>
+            </thead>
+            <tbody>
+            <!-- Attendance records will go here -->
+            </tbody>
+        </table>
+    </main>
+
+    <footer class="footer mt-auto py-3 bg-dark text-white">
+        <div class="container text-center">
+            <span>© 2023 Attendance System</span>
+        </div>
+    </footer>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script src="/static/script.js"></script>
+    <script>
+        {% if message %}
+            alert("{{ message }}");
+        {% endif %}
+    </script>
+</body>
+</html>
+
