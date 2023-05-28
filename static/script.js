@@ -67,7 +67,7 @@ function loadAttendanceRecords() {
             records_html += '</ul>';
             $('#attendance-records').html(records_html);
         },
-    });
+    }); 
 }
 
 $(document).ready(function() {
