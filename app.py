@@ -16,48 +16,100 @@ def home():
     return render_template('index.html')
 
 @app.route('/upload', methods=['POST'])
+# def upload():
+#     file = request.files.get('imageFile')
+#     if file:
+#         stream = io.BytesIO()
+#         image = Image.open(file)
+#         image.save(stream, format="JPEG")
+#         image_binary = stream.getvalue()
+#     else:
+#         print('No file in request')
+
+
+#     response = rekognition.search_faces_by_image(
+#             CollectionId='family_collection',
+#             Image={'Bytes':image_binary}                                       
+#             )
+
+#     for match in response['FaceMatches']:
+#         face = dynamodb.get_item(
+#             TableName='family_collection',  
+#             Key={'RekognitionId': {'S': match['Face']['FaceId']}}
+#             )
+
+#         if 'Item' in face:
+#             student_name = face['Item']['FullName']['S']
+#             attendance = dynamodb.get_item(
+#                 TableName='attendance',
+#                 Key={'student_id': {'S': student_name}, 'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}}
+#             )
+#             if 'Item' in attendance:
+#                 message = "Attendance already marked for today"
+#             else:
+#                 dynamodb.put_item(
+#                     TableName='attendance',
+#                     Item={
+#                         'student_id': {'S': student_name},
+#                         'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}
+#                     }
+#                 )
+#                 message = 'Attendance marked'
+#         else:
+#             message = 'No match found in person lookup'
+
+#     return render_template('index.html', message=message)
+@app.route('/upload', methods=['POST'])
 def upload():
     file = request.files.get('imageFile')
-    if file:
-        stream = io.BytesIO()
-        image = Image.open(file)
-        image.save(stream, format="JPEG")
-        image_binary = stream.getvalue()
-    else:
-        print('No file in request')
-
-
-    response = rekognition.search_faces_by_image(
-            CollectionId='family_collection',
-            Image={'Bytes':image_binary}                                       
-            )
-
-    for match in response['FaceMatches']:
-        face = dynamodb.get_item(
-            TableName='family_collection',  
-            Key={'RekognitionId': {'S': match['Face']['FaceId']}}
-            )
-
-        if 'Item' in face:
-            student_name = face['Item']['FullName']['S']
-            attendance = dynamodb.get_item(
-                TableName='attendance',
-                Key={'student_id': {'S': student_name}, 'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}}
-            )
-            if 'Item' in attendance:
-                message = "Attendance already marked for today"
-            else:
-                dynamodb.put_item(
-                    TableName='attendance',
-                    Item={
-                        'student_id': {'S': student_name},
-                        'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}
-                    }
-                )
-                message = 'Attendance marked'
+    message = 'An unexpected error occurred'
+    try:
+        if file:
+            stream = io.BytesIO()
+            image = Image.open(file)
+            image.save(stream, format="JPEG")
+            image_binary = stream.getvalue()
         else:
-            message = 'No match found in person lookup'
+            print('No file in request')
+            return render_template('index.html', message='No file in request')
 
+        response = rekognition.search_faces_by_image(
+                CollectionId='family_collection',
+                Image={'Bytes':image_binary}                                       
+                )
+
+        if 'FaceMatches' not in response or len(response['FaceMatches']) == 0:
+            message = 'No faces recognized'
+            return render_template('index.html', message=message)
+
+        for match in response['FaceMatches']:
+            face = dynamodb.get_item(
+                TableName='family_collection',  
+                Key={'RekognitionId': {'S': match['Face']['FaceId']}}
+                )
+
+            if 'Item' in face:
+                student_name = face['Item']['FullName']['S']
+                attendance = dynamodb.get_item(
+                    TableName='attendance',
+                    Key={'student_id': {'S': student_name}, 'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}}
+                )
+                if 'Item' in attendance:
+                    message = "Attendance already marked for today"
+                else:
+                    dynamodb.put_item(
+                        TableName='attendance',
+                        Item={
+                            'student_id': {'S': student_name},
+                            'date': {'S': datetime.datetime.now().strftime("%Y-%m-%d")}
+                        }
+                    )
+                    message = 'Attendance marked'
+            else:
+                message = 'No match found in person lookup'
+    except Exception as e:
+        print(f'Error: {e}')
+    
     return render_template('index.html', message=message)
 
 @app.route('/attendance', methods=['GET'])
